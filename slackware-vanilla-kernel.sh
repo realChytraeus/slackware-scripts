@@ -2,7 +2,6 @@
 # Greetings.
 # A rather vanilla kernel with gcc optimization patch
 # Donald Cooley <chytraeu@sdf.org>
-# INSERT LICENSE HERE.
 VERSION=$1
 if [ -z $VERSION ]; then
 	echo "kernel version?"
