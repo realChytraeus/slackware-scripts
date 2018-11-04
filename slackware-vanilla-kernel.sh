@@ -2,7 +2,7 @@
 # Greetings.
 # A rather vanilla kernel with gcc optimization patch
 # Script assumes aria2 is installed for parallel download of Linux kernel source code.
-# Donald Cooley <chytraeu@sdf.org>
+# Donald Cooley
 VERSION=$1
 if [ -z $VERSION ]; then
 	echo "kernel version?"
