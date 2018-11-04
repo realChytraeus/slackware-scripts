@@ -1,6 +1,7 @@
 #!/bin/bash
 # Greetings.
 # A rather vanilla kernel with gcc optimization patch
+# Script assumes aria2 is installed for parallel download of Linux kernel source code.
 # Donald Cooley <chytraeu@sdf.org>
 VERSION=$1
 if [ -z $VERSION ]; then
