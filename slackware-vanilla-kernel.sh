@@ -1,7 +1,9 @@
 #!/bin/bash
+# Version 0.2
 # Greetings.
 # A rather vanilla kernel with gcc optimization patch
 # Script assumes aria2 is installed for parallel download of Linux kernel source code.
+# aria2 is available from slackbuilds.org
 # Donald Cooley
 VERSION=$1
 if [ -z $VERSION ]; then
@@ -9,9 +11,12 @@ if [ -z $VERSION ]; then
 	exit 0
 fi
 
-jobs='9'
+# download gpg keys
+
+#jobs=$(expr $(nproc) + 1)
+NUMJOBS=${NUMJOBS:-" -j$(expr $(nproc) + 1) "}
 KERNEL_FILES="/usr/src/linux/arch/x86/boot"
-KERNEL_SERVER="https://www.kernel.org/pub/linux/kernel/v4.x/linux"
+KERNEL_SERVER="https://www.kernel.org/pub/linux/kernel/v6.x/linux"
 SOURCE_DIRECTORY='/usr/src'
 
 #set -e
@@ -27,7 +32,7 @@ fetch_kernel () {
     return
 }
 
-# Decompress kernel and link against our soon-to-be patched kernel
+# Decompress kernel
 
 decompress_kernel () {
     echo "Decompressing kernel"
@@ -38,24 +43,21 @@ decompress_kernel () {
     return
 }
 
-# Patch kernel with a GCC optimization patch found here:
-# https://github.com/graysky2/kernel_gcc_patch
-patch_kernel () {
-    echo "Applying a GCC optimization patch and our present working kernel's configuration"
+configure_kernel () {
+    echo "Configure kernel"
     cd $SOURCE_DIRECTORY/linux
     make mrproper
-    patch -p1 < ../enable_additional_cpu_optimizations_for_gcc_v4.9+_kernel_v3.15+.patch
     zcat /proc/config.gz > .config
-    make oldconfig 
-    echo "Don't forget to run /usr/share/mkinitrd/mkinitrd_command_generator.sh \
-        and to edit /etc/lilo.conf. Finally, run lilo again."
+    make oldconfig
     return
 }
 
 # Compile kernel
 compile_kernel () {
     echo "Compiling kernel. This will take some time ..."
-    time ( make -j$jobs bzImage modules && make modules_install )
+    export KCFLAGS='-march=native'
+    export KCPPFLAGS='-march=native'
+    time ( make $NUMJOBS bzImage modules && make modules_install )
     return
 }
 
@@ -67,6 +69,8 @@ move_kernel () {
     cd /boot
     rm System.map
     ln -s System.map-$VERSION-custom System.map
+    echo "Don't forget to run /usr/share/mkinitrd/mkinitrd_command_generator.sh \
+        and to edit /etc/lilo.conf. Finally, run lilo again."
     return
 }
 
@@ -74,13 +78,13 @@ move_kernel () {
 cd $SOURCE_DIRECTORY
 # Donwload kernel's gpg key
 echo "Retrieve gpg key for our kernel source code"
-gpg --recv-keys 6092693E
+gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org
 
 fetch_kernel
 
 decompress_kernel
 
-patch_kernel
+configure_kernel
 
 compile_kernel
 
