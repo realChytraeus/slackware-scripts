@@ -1,7 +1,7 @@
 #!/bin/bash
 # Version 0.2
 # Greetings.
-# A rather vanilla kernel with gcc optimization patch
+# A rather vanilla kernel
 # Script assumes aria2 is installed for parallel download of Linux kernel source code.
 # aria2 is available from slackbuilds.org
 # Donald Cooley
@@ -11,18 +11,12 @@ if [ -z $VERSION ]; then
 	exit 0
 fi
 
-# download gpg keys
-
-#jobs=$(expr $(nproc) + 1)
 NUMJOBS=${NUMJOBS:-" -j$(expr $(nproc) + 1) "}
 KERNEL_FILES="/usr/src/linux/arch/x86/boot"
 KERNEL_SERVER="https://www.kernel.org/pub/linux/kernel/v6.x/linux"
 SOURCE_DIRECTORY='/usr/src'
 
-#set -e
-
 # Donwload the kernel source and verify its gpg signature
-
 fetch_kernel () {
     echo 'Downloading kernel source code and verifying its gpg signature'
     cd $SOURCE_DIRECTORY
@@ -32,8 +26,7 @@ fetch_kernel () {
     return
 }
 
-# Decompress kernel
-
+# Decompress the kernel source
 decompress_kernel () {
     echo "Decompressing kernel"
     cd $SOURCE_DIRECTORY
@@ -43,6 +36,7 @@ decompress_kernel () {
     return
 }
 
+# Configure the kernel based on the present working kernel
 configure_kernel () {
     echo "Configure kernel"
     cd $SOURCE_DIRECTORY/linux
@@ -69,8 +63,9 @@ move_kernel () {
     cd /boot
     rm System.map
     ln -s System.map-$VERSION-custom System.map
-    echo "Don't forget to run /usr/share/mkinitrd/mkinitrd_command_generator.sh \
-        and to edit /etc/lilo.conf. Finally, run lilo again."
+    echo "Don't forget to run
+    /usr/share/mkinitrd/mkinitrd_command_generator.sh"
+     echo "and to edit /etc/lilo.conf. Finally, run lilo again."
     return
 }
 
