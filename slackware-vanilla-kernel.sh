@@ -1,9 +1,5 @@
 #!/bin/bash
 # Version 0.2
-# Greetings.
-# A rather vanilla kernel
-# Script assumes aria2 is installed for parallel download of Linux kernel source code.
-# aria2 is available from slackbuilds.org
 # copyright 2018-2024 Donald Cooley, Mill Creek, IN, USA
 
 VERSION=$1
